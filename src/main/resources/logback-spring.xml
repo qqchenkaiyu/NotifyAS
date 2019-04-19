@@ -1,0 +1,73 @@
+<configuration>
+  <!-- include resource="org/springframework/boot/logging/logback/base.xml" /-->
+
+  <!-- 文档保留天数 -->
+  <!--<springProperty scope="context" name="logMaxHistory" source="logging.max.history"/>-->
+  <property  name="logMaxHistory" value="300" />
+  <property  name="ERR_PATH" value="ERR_LOG" />
+  <property  name="LOG_PATH" value="INFO_LOG" />
+  <property  name="CDR_PATH" value="XDR/CDR" />
+  <!-- 按日期区分的滚动日志 -->
+  <appender name="ERROR-OUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${ERR_PATH}/error.log</file>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%caller] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${ERR_PATH}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>${logMaxHistory}</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%blue(%d{yyyy-MM-dd HH:mm:ss.SSS}) %cyan([%thread]) %highlight(%-5level) %boldMagenta(%logger) %-3L - %green(%msg%n)
+      </pattern>
+    </encoder>
+  </appender>
+
+  <timestamp key="bySecond" datePattern="SSS"/>
+  <appender name="FILE-THREAD" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/info.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- 每天日志归档路径以及格式 -->
+      <fileNamePattern>${LOG_PATH}/info.log.%d{yyyy-MM-dd-HH}.%i</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+      <maxFileSize>3gb</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <!--日志文档保留天数-->
+      <maxHistory>${logMaxHistory}</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} :%-3L- %msg%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
+  <appender name="CDR-OUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${CDR_PATH}/%d{yyyy-MM-dd,aux}/error1.log</file>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%caller] - %m%n</pattern>
+    </encoder>
+
+  </appender>
+  <!--<logger name="cn.witsky.smb.service.XdrService" level="INFO" additivity="false">-->
+    <!--<appender-ref ref="CDR-OUT"/>-->
+    <!--<appender-ref ref="STDOUT"/>-->
+  <!--</logger>-->
+  <root level="INFO">
+    <appender-ref ref="FILE-THREAD"/>
+    <appender-ref ref="ERROR-OUT"/>
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+
+  <logger name="cn.witsky.smb.application" level="INFO" additivity="false">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+</configuration>
